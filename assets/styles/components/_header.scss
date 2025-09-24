@@ -1,5 +1,6 @@
 .header {
-  padding-top: 20px;
+  border-bottom: 1px solid #000;
+  padding-top: 0;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
 
@@ -113,8 +114,108 @@
   }
 
   .buttons {
+    // Override specific green color rule
+    .button.is-primary.is-outlined .trnd {
+      background-color: #000 !important;
+      color: #000 !important;
+    }
+
+    // Global icon override for header buttons
+    * {
+      color: #000 !important;
+      fill: #000 !important;
+    }
+
+    .button {
+      background: #fff !important;
+      color: #000 !important;
+      border: 1px solid #000 !important;
+      border-radius: 0 !important;
+
+      .icon,
+      .icon svg,
+      .icon i,
+      .icon::before,
+      span.icon,
+      span.icon svg,
+      span.icon i {
+        color: #000 !important;
+        fill: #000 !important;
+      }
+    }
+
+    // Additional override for Buefy icon classes
+    .button .icon.is-small,
+    .button .icon.is-medium,
+    .button .icon.is-large {
+      color: #000 !important;
+
+      svg, i, &::before {
+        color: #000 !important;
+        fill: #000 !important;
+      }
+    }
+
+    .button {
+      &:hover {
+        background: #f8f8f8 !important;
+        color: #000 !important;
+        border-color: #000 !important;
+
+        .icon,
+        .icon svg,
+        .icon i,
+        .icon::before {
+          color: #000 !important;
+          fill: #000 !important;
+        }
+      }
+
+      &:focus {
+        box-shadow: none !important;
+        background: #fff !important;
+        color: #000 !important;
+        border-color: #000 !important;
+
+        .icon,
+        .icon svg,
+        .icon i,
+        .icon::before {
+          color: #000 !important;
+          fill: #000 !important;
+        }
+      }
+
+      &:active {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        border-color: #000 !important;
+
+        .icon,
+        .icon svg,
+        .icon i,
+        .icon::before {
+          color: #000 !important;
+          fill: #000 !important;
+        }
+      }
+    }
+
     .b-tooltip {
       margin-right: 0.714rem;
+
+      .button {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+
+        &:hover {
+          background: #f8f8f8 !important;
+          color: #000 !important;
+          border-color: #000 !important;
+        }
+      }
 
       .tooltip-content {
         text-align: center;

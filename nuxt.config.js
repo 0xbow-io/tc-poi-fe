@@ -44,7 +44,7 @@ export default {
     fallback: true
   },
   head: {
-    title: 'Tornado.cash',
+    title: '0xbow - Proof of Innocence',
     meta: [
       { charset: 'utf-8' },
       {
@@ -69,7 +69,7 @@ export default {
       {
         hid: 'og:title',
         property: 'og:title',
-        content: 'Tornado.Cash'
+        content: '0xbow - Proof of Innocence'
       },
       {
         hid: 'og:description',
@@ -105,7 +105,8 @@ export default {
     ],
     link: [
       { rel: 'manifest', href: '/manifest.json' },
-      { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon/favicon.ico' },
+      { rel: 'icon', type: 'image/svg+xml', href: '/fav.svg?v=3' },
+      { rel: 'shortcut icon', type: 'image/x-icon', href: '/fav.svg?v=3' },
       { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' }
     ]
   },

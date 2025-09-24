@@ -28,23 +28,32 @@
     </b-notification>
 
     <div class="columns is-centered">
-      <div class="column is-half-desktop is-three-quarters-tablet is-full-mobile">
+      <div class="column">
         <div class="tabs-wrapper">
           <div class="tabs-header">
             <span class="tab-title">Proof of Association</span>
             <div class="tab-links">
-              <span @click="activeTab = 0" :class="['tab-link', { active: activeTab === 0 }]">POA</span>
-              <span @click="goToRegistry" class="tab-link">Registry</span>
-              <span @click="goToDepositList" class="tab-link">Deposit List</span>
+              <span :class="['tab-link', { active: activeTab === 0 }]" @click="activeTab = 0">POA</span>
+              <span class="tab-link" @click="goToRegistry">Registry</span>
+              <span class="tab-link" @click="goToDepositList">Deposit List</span>
             </div>
           </div>
           <b-tabs v-model="activeTab" class="custom-tabs" :animated="false" @input="tabChanged">
             <ProveInnocence />
-            <Withdraw :active-tab="activeTab" @get-key="onGetKey" style="display: none;" />
+            <Withdraw :active-tab="activeTab" style="display: none;" @get-key="onGetKey" />
           </b-tabs>
         </div>
       </div>
     </div>
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <div v-for="(item, idx) in faqItems" :key="idx" class="faq-item">
+        <button class="faq-toggle" @click="item.open = !item.open">{{ item.open ? '−' : '+' }}</button>
+        <div class="faq-question">{{ item.q }}</div>
+        <div v-show="item.open" class="faq-answer">{{ item.a }}</div>
+      </div>
+    </section>
+
     <Txs />
   </div>
 </template>
@@ -66,7 +75,45 @@ export default {
   data() {
     return {
       activeTab: 0,
-      isActive: false
+      isActive: false,
+      faqItems: [
+        {
+          q: 'How does Privacy Pools differ from other privacy solutions?',
+          a:
+            'Privacy Pools is a semi-permissionless application built on public Ethereum with an opinionated approach to compliance and enforcement. It leverages several compliance tools and algorithms provided by 0xbow.io that enable the exclusion of illicit actors.',
+          open: true
+        },
+        {
+          q: 'How does Privacy Pools ensure privacy while maintaining compliance?',
+          a: 'It uses association sets and membership proofs to keep privacy while enforcing policy.',
+          open: false
+        },
+        {
+          q: 'What role does the Association Set Provider (ASP) play?',
+          a: 'The ASP curates and publishes association sets that users can target when generating proofs.',
+          open: false
+        },
+        {
+          q: 'Can a deposit be blocked from relayed withdrawals after being accepted?',
+          a: 'Relayers enforce policy at withdraw time; deposits that fail policy cannot be relayed.',
+          open: false
+        },
+        {
+          q: "What happens if a user's deposit is not approved by the ASP?",
+          a: 'The proof will fail validation; the user can review requirements and try again later.',
+          open: false
+        },
+        {
+          q: 'What happens if someone tries to re-enter the Privacy set?',
+          a: 'Nullifier checks prevent double-spending and re-entry exploits.',
+          open: false
+        },
+        {
+          q: 'What do I do with my "History File"?',
+          a: 'Keep it safe; it contains the local context needed to reconstruct proofs or audits.',
+          open: false
+        }
+      ]
     }
   },
   computed: {
@@ -125,11 +172,17 @@ export default {
       }
     },
     goToRegistry() {
-      this.$router.push('/proof-of-innocence')
+      this.$router.push('/registry')
     },
     goToDepositList() {
-      // Navigate to deposit list page or tab
-      this.$router.push('/proof-of-innocence')
+      // Navigate to Deposit List page
+      this.$router.push('/deposit-list')
+    }
+  },
+  head() {
+    return {
+      title: '0xbow - Proof of Innocence',
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/fav.svg?v=3' }]
     }
   }
 }
@@ -137,9 +190,12 @@ export default {
 <style scoped>
 .tabs-wrapper {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #000;
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .tabs-header {
@@ -147,7 +203,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  border-bottom: 1px solid #e0e0e0;
+  /* Avoid heavy divider above the form, design uses top bar border instead */
+  border-bottom: none;
 }
 
 .tab-title {
@@ -186,5 +243,47 @@ export default {
 
 .custom-tabs ::v-deep .tab-content {
   padding: 0;
+}
+
+/* Hide the empty info notification bar entirely */
+.main-notification.is-info {
+  display: none !important;
+}
+
+/* FAQ styles below the POA card */
+.faq-section {
+  max-width: 960px;
+  margin: 1.5rem auto 0;
+}
+
+.faq-item {
+  position: relative;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.faq-toggle {
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid #000;
+  background: #fff;
+  border-radius: 0;
+  line-height: 1.2rem;
+  font-weight: 700;
+}
+
+.faq-question {
+  font-weight: 600;
+}
+
+.faq-answer {
+  color: #666;
+  margin-top: 0.5rem;
 }
 </style>

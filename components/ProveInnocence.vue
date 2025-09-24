@@ -3,34 +3,84 @@
     <div class="poa-container">
       <div class="poa-header">
         <h2 class="poa-title">Generate POA</h2>
-        <div class="poa-subtitle">What is POA?</div>
       </div>
 
-      <div class="field poa-field">
-        <b-input
-          v-model="withdrawNote"
-          placeholder="Enter Note"
-          :custom-class="hasErrorNote ? 'has-error' : ''"
-          data-test="enter_note_field"
-          class="poa-input"
-        ></b-input>
-      </div>
+      <div class="poa-grid">
+        <div class="poa-left">
+          <div class="field poa-field">
+            <b-input
+              v-model="withdrawNote"
+              placeholder="Enter Note"
+              :custom-class="hasErrorNote ? 'has-error' : ''"
+              data-test="enter_note_field"
+              class="poa-input"
+              @blur="noteInputTouched = true"
+            ></b-input>
+          </div>
 
-      <div class="field poa-field">
-        <b-input
-          v-model="withdrawAddress"
-          placeholder="Enter recipient address"
-          :custom-class="!isValidAddress && withdrawAddress ? 'has-error' : ''"
-          data-test="recipient_field"
-          class="poa-input"
-        ></b-input>
-      </div>
+          <div class="field poa-field">
+            <b-input
+              v-model="withdrawAddress"
+              placeholder="Enter recipient address"
+              :custom-class="!isValidAddress && withdrawAddress ? 'has-error' : ''"
+              data-test="recipient_field"
+              class="poa-input"
+            ></b-input>
+          </div>
 
-      <div v-if="hasErrorNote" class="help error-msg">
-        {{ hasErrorNote.msg }}
-      </div>
-      <div v-if="error.message" class="help error-msg">
-        {{ error.message }}
+          <div v-if="hasErrorNote" class="help error-msg">
+            {{ hasErrorNote.msg }}
+          </div>
+          <div v-if="error.message" class="help error-msg">
+            {{ error.message }}
+          </div>
+
+          <div class="poa-meta">
+            <div class="meta-row">
+              <span class="meta-label">Donations address:</span>
+              <span class="meta-value">{{ DONATIONS_ADDRESS }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Tornado.cash version:</span>
+              <span class="meta-value">debug</span>
+            </div>
+          </div>
+
+          <div class="poa-button-container">
+            <connect-button
+              v-if="!isLoggedIn"
+              type="is-primary is-fullwidth"
+              class="poa-connect-btn"
+              action-text="connect"
+            />
+            <b-button
+              v-else
+              type="is-primary is-fullwidth"
+              class="poa-generate-btn"
+              :disabled="isProvingButtonDisable || !withdrawNote || !withdrawAddress"
+              :loading="isLoading"
+              data-test="button_start_innocenceproof"
+              @click="onProveInnocence"
+            >
+              Generate POA
+            </b-button>
+          </div>
+        </div>
+
+        <div class="poa-right">
+          <div class="poa-right-title">What is POA?</div>
+          <p>
+            Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+            lorem ipsum lorem ipsum lorem ipsum lorem ipsum.
+          </p>
+          <p>
+            Lorem ipsum ipsum lorem ipsum ipsum lorem ipsum ipsum lorem ipsum ipsum lorem ipsum ipsum lorem
+            ipsum.
+          </p>
+          <p>
+            Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -132,25 +182,6 @@
         </div>
       </div>
     </div>
-    <div class="poa-button-container">
-      <connect-button
-        v-if="!isLoggedIn"
-        type="is-primary is-fullwidth"
-        class="poa-connect-btn"
-        action-text="connect"
-      />
-      <b-button
-        v-else
-        type="is-primary is-fullwidth"
-        class="poa-generate-btn"
-        :disabled="isProvingButtonDisable || !withdrawNote || !withdrawAddress"
-        :loading="isLoading"
-        data-test="button_start_innocenceproof"
-        @click="onProveInnocence"
-      >
-        Generate POA
-      </b-button>
-    </div>
   </b-tab-item>
 </template>
 
@@ -175,6 +206,7 @@ export default {
     return {
       withdrawAddress: '',
       withdrawNote: '',
+      noteInputTouched: false,
       depositsPast: null,
       depositTxHash: null,
       depositTimestamp: null,
@@ -193,7 +225,8 @@ export default {
         to: '',
         fees: '0.0075 xDAI (~ $0.00)',
         feeCollector: '0xbow (0x1a2b...3c4d)'
-      }
+      },
+      DONATIONS_ADDRESS
     }
   },
   computed: {
@@ -212,15 +245,15 @@ export default {
       return !this.hasErrorNote && !this.error.message
     },
     hasErrorNote() {
+      if (!this.withdrawNote || !this.noteInputTouched) {
+        return false
+      }
       const note = this.withdrawNote.split('-')[4]
       if (typeof WebAssembly === 'undefined') {
         return {
           type: 'is-warning',
           msg: this.$t('turnOnWasm')
         }
-      }
-      if (!this.withdrawNote) {
-        return { type: '', msg: '' }
       }
       if (!note || note.length < 126 || !isHexStrict(note)) {
         return { type: 'is-warning', msg: this.$t('noteIsInvalid') }
@@ -295,6 +328,12 @@ export default {
         }
 
         try {
+          // Only process if we have a reasonable looking note format
+          if (!withdrawNote || withdrawNote.length < 10 || !withdrawNote.includes('-')) {
+            this.$store.dispatch('loading/disable')
+            return
+          }
+
           this.$store.dispatch('loading/enable', { message: this.$t('gettingTheNoteData') })
           this.isSpent = false
           this.depositsPast = null
@@ -303,7 +342,7 @@ export default {
 
           if (!this.hasErrorNote) {
             const [tornadoPrefix, currency, amount, noteNetId, note] = this.withdrawNote.split('-')
-            if (tornadoPrefix !== 'tornado') {
+            if (tornadoPrefix !== 'tornado' && this.withdrawNote.split('-').length >= 5) {
               this.$store.dispatch('loading/disable')
               this.withdrawNote = `tornado-${currency}-${amount}-${noteNetId}-${note}`
               return
@@ -363,6 +402,7 @@ export default {
       if (newTab !== oldTab && newTab === 1) {
         this.withdrawAddress = ''
         this.withdrawNote = ''
+        this.noteInputTouched = false
         this.error = {
           type: '',
           message: ''
@@ -379,6 +419,7 @@ export default {
     this.$root.$on('resetWithdraw', () => {
       this.withdrawAddress = ''
       this.withdrawNote = ''
+      this.noteInputTouched = false
     })
     this.getPoiFeeBPS()
     this.$store.dispatch('application/getPoiFeeBPS')
@@ -448,31 +489,26 @@ export default {
       try {
         this.$store.dispatch('loading/enable', { message: this.$t('generatingProof') })
 
+        // Use existing application action; if it resolves, consider it a success
         await this.$store.dispatch('application/prepareInnocenceProof', {
-          note: this.withdrawNote,
-          recipient: this.withdrawAddress
+          note: this.withdrawNote
         })
 
-        // Set proof details
-        this.proofDetails.from = this.withdrawAddress || '0x2ac1...5bd6'
-        this.proofDetails.to = this.withdrawAddress || '0x2ac1...5bd6'
+        // Populate modal details from current context
+        const fromAddress = this.$store.state.metamask.ethAccount || this.withdrawAddress
+        this.proofDetails.from = fromAddress || ''
+        this.proofDetails.to = this.withdrawAddress || ''
 
-        // Simulate success/failure - In real app, this would depend on the proof result
-        const isSuccess = Math.random() > 0.5 // For demo, randomly show success or failure
-
-        if (isSuccess) {
-          this.showSuccessModal = true
-        } else {
-          this.showFailureModal = true
-        }
+        this.showSuccessModal = true
       } catch (err) {
         this.error = {
           type: this.$t('error'),
           message: err.message
         }
+        const fromAddress = this.$store.state.metamask.ethAccount || this.withdrawAddress
+        this.proofDetails.from = fromAddress || ''
+        this.proofDetails.to = this.withdrawAddress || ''
         this.showFailureModal = true
-        this.proofDetails.from = this.withdrawAddress || '0x2ac1...5bd6'
-        this.proofDetails.to = this.withdrawAddress || '0x2ac1...5bd6'
       } finally {
         this.$store.dispatch('loading/disable')
       }
@@ -518,7 +554,7 @@ export default {
       this.closeFailureModal()
     },
     viewRegistry() {
-      this.$router.push('/proof-of-innocence')
+      this.$router.push('/registry')
       this.closeSuccessModal()
     }
   }
@@ -528,12 +564,18 @@ export default {
 .poa-container {
   padding: 2rem;
   background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #000;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+  width: 100%;
 }
 
 .poa-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .poa-title {
@@ -543,10 +585,45 @@ export default {
   margin-bottom: 0.5rem;
 }
 
-.poa-subtitle {
+.poa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 2rem;
+  min-height: 400px;
+}
+
+@media (max-width: 768px) {
+  .poa-grid {
+    grid-template-columns: 1fr;
+    grid-gap: 1.5rem;
+  }
+}
+
+.poa-left {
+  border-right: 1px solid #000;
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .poa-left {
+    border: none;
+  }
+}
+
+.poa-right {
+  padding-left: 1rem;
+}
+
+.poa-right-title {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.poa-right p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
   color: #666;
-  cursor: pointer;
-  text-decoration: underline;
 }
 
 .poa-field {
@@ -555,9 +632,9 @@ export default {
 
 .poa-input {
   ::v-deep input {
-    background: #f5f5f5;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 0;
     padding: 0.75rem 1rem;
     font-size: 0.95rem;
     color: #333;
@@ -572,7 +649,8 @@ export default {
     }
   }
 
-  &.has-error ::v-deep input {
+  /* highlight when Buefy applies custom-class to inner input */
+  ::v-deep input.has-error {
     border-color: #ff4444;
   }
 }
@@ -584,29 +662,62 @@ export default {
 }
 
 .poa-button-container {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .poa-connect-btn ::v-deep .button,
 .poa-generate-btn {
-  background: #000;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
   padding: 0.75rem 1.5rem;
   font-weight: 500;
-  transition: opacity 0.2s;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
   width: 100%;
+  min-height: 2.5rem;
 
   &:hover:not(:disabled) {
-    background: #333;
-    color: #fff;
+    background: #f8f8f8 !important;
+    color: #000 !important;
+    border-color: #000 !important;
   }
 
   &:disabled {
-    background: #ccc;
+    background: #f5f5f5 !important;
+    color: #999 !important;
+    border-color: #ddd !important;
     cursor: not-allowed;
   }
+
+  &:focus {
+    box-shadow: none !important;
+    border-color: #000 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  &:active {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+}
+
+.poa-meta {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.poa-meta .meta-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.poa-meta .meta-label {
+  color: #666;
 }
 
 .modal-overlay {

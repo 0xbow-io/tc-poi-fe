@@ -1,79 +1,90 @@
 <template>
-  <section class="section proof-registry">
-    <div class="proof-table-wrapper">
-      <div class="registry-header">
-        <div class="tabs-container">
-          <div class="tab active">POA</div>
-          <div class="tab">Registry</div>
-          <div class="tab">Deposit List</div>
-        </div>
-        <div class="search-container">
-          <b-input v-model="searchNullifier" placeholder="Search" class="search-input" expanded>
-            <template #prefix>
-              <b-icon icon="magnify" size="is-small" />
-            </template>
-          </b-input>
-        </div>
-      </div>
-
-      <div class="registry-table">
-        <table>
-          <thead>
-            <tr>
-              <th>ADDRESS</th>
-              <th>DATE-TIME</th>
-              <th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="proof in paginatedProofs" :key="proof.nullifierHash">
-              <td class="address-cell">{{ truncateAddress(proof.sender) }}</td>
-              <td class="datetime-cell">{{ formatDateTime(proof.timestamp) }}</td>
-              <td class="status-cell">
-                <span class="status-approved">Approved</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination-container">
-        <span class="pagination-info">{{ currentPage }} OF {{ pageCount }}</span>
-        <div class="pagination-controls">
-          <button class="pagination-btn" :disabled="currentPage === 1" @click="previousPage">
-            &lt;
-          </button>
-          <span class="page-numbers">
-            <span
-              v-for="page in displayedPages"
-              :key="page"
-              :class="['page-number', { active: page === currentPage }]"
-              @click="goToPage(page)"
-            >
-              {{ page }}
-            </span>
-            <span v-if="showEllipsis" class="ellipsis">
-              ...
-            </span>
-            <span
-              :class="['page-number', { active: pageCount === currentPage }]"
-              @click="goToPage(pageCount)"
-            >
-              {{ pageCount }}
-            </span>
-          </span>
-          <button class="pagination-btn" :disabled="currentPage === pageCount" @click="nextPage">
-            &gt;
-          </button>
+  <div>
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="tabs-wrapper">
+          <div class="tabs-header">
+            <span class="tab-title">Registry</span>
+            <div class="tab-links">
+              <span class="tab-link" @click="$router.push('/')">POA</span>
+              <span class="tab-link active">Registry</span>
+              <span class="tab-link" @click="$router.push('/deposit-list')">Deposit List</span>
+              <div class="search-container">
+                <b-input v-model="searchNullifier" placeholder="Search" class="search-input" expanded>
+                  <template #prefix>
+                    <b-icon icon="magnify" size="is-small" />
+                  </template>
+                </b-input>
+              </div>
+            </div>
+          </div>
+          <div class="poa-container">
+            <div class="registry-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ADDRESS</th>
+                    <th>DATE-TIME</th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="proof in paginatedProofs" :key="proof.nullifierHash">
+                    <td class="address-cell">{{ truncateAddress(proof.sender) }}</td>
+                    <td class="datetime-cell">{{ formatDateTime(proof.timestamp) }}</td>
+                    <td class="status-cell">
+                      <span class="status-approved">Approved</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination-container">
+              <span class="pagination-info">{{ currentPage }} OF {{ pageCount }}</span>
+              <div class="pagination-controls">
+                <button class="pagination-btn" :disabled="currentPage === 1" @click="previousPage">
+                  &lt;
+                </button>
+                <span class="page-numbers">
+                  <span
+                    v-for="page in displayedPages"
+                    :key="page"
+                    :class="['page-number', { active: page === currentPage }]"
+                    @click="goToPage(page)"
+                  >
+                    {{ page }}
+                  </span>
+                  <span v-if="showEllipsis" class="ellipsis">
+                    ...
+                  </span>
+                  <span
+                    :class="['page-number', { active: pageCount === currentPage }]"
+                    @click="goToPage(pageCount)"
+                  >
+                    {{ pageCount }}
+                  </span>
+                </span>
+                <button class="pagination-btn" :disabled="currentPage === pageCount" @click="nextPage">
+                  &gt;
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
 import { ethers } from 'ethers'
 
 export default {
+  head() {
+    return {
+      title: '0xbow - Registry'
+    }
+  },
   data() {
     return {
       loading: true,
@@ -249,32 +260,37 @@ export default {
 </script>
 
 <style scoped>
-.proof-registry {
+.tabs-wrapper {
   background: #fff;
-  min-height: 100vh;
-}
-
-.proof-table-wrapper {
-  max-width: 1200px;
+  border: 1px solid #000;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 2rem;
 }
 
-.registry-header {
+.tabs-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 1rem;
+  padding: 1rem 2rem;
+  border-bottom: none;
 }
 
-.tabs-container {
+.tab-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.tab-links {
   display: flex;
+  align-items: center;
   gap: 2rem;
 }
 
-.tab {
+.tab-link {
   color: #666;
   font-size: 0.9rem;
   cursor: pointer;
@@ -283,26 +299,40 @@ export default {
   transition: all 0.2s;
 }
 
-.tab.active {
+.tab-link.active {
   color: #000;
   font-weight: 500;
   border-bottom-color: #000;
 }
 
-.tab:hover:not(.active) {
+.tab-link:hover:not(.active) {
   color: #333;
 }
 
 .search-container {
-  width: 300px;
+  width: 200px;
+  margin-left: 2rem;
 }
 
 .search-input ::v-deep input {
   background: #f5f5f5;
   border: 1px solid #e0e0e0;
-  border-radius: 20px;
+  border-radius: 0;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
+}
+
+.poa-container {
+  padding: 2rem;
+  background: #ffffff;
+  border-top: 1px solid #000;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+  width: 100%;
 }
 
 .registry-table {

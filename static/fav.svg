@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background with border radius -->
+  <rect width="32" height="32" rx="6" fill="white"/>
+  <!-- Border for better definition -->
+  <rect width="32" height="32" rx="6" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+  <!-- Original logo centered and slightly scaled -->
+  <g transform="translate(2.5, 2) scale(1)">
+    <path d="M5.21364 5.3465L18.5649 3.0722L0.728516 0.589111L1.38306 19.6709L5.21364 5.3465Z" fill="black"/>
+    <path d="M11.3503 16.7031L12.3023 13.1686L15.3891 12.6317L16.7056 7.89673L8.65027 9.32096L6.45605 17.5756L11.3503 16.7031Z" fill="black"/>
+    <path d="M23.2436 3.43011L18.8552 19.7081L0.617188 23.4812L4.19487 27.4706L22.9907 24.1374L26.6428 10.4171L23.2436 3.43011Z" fill="black"/>
+  </g>
+</svg>
+
