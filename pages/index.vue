@@ -50,7 +50,7 @@
       <div v-for="(item, idx) in faqItems" :key="idx" class="faq-item">
         <button class="faq-toggle" @click="item.open = !item.open">{{ item.open ? '−' : '+' }}</button>
         <div class="faq-question">{{ item.q }}</div>
-        <div v-show="item.open" class="faq-answer">{{ item.a }}</div>
+        <div v-show="item.open" class="faq-answer" v-html="item.a"></div>
       </div>
     </section>
 
@@ -78,39 +78,26 @@ export default {
       isActive: false,
       faqItems: [
         {
-          q: 'How does Privacy Pools differ from other privacy solutions?',
+          q: 'Does using the Tornado Cash Proof of Association break my privacy?',
           a:
-            'Privacy Pools is a semi-permissionless application built on public Ethereum with an opinionated approach to compliance and enforcement. It leverages several compliance tools and algorithms provided by 0xbow.io that enable the exclusion of illicit actors.',
+            'No. All computation is performed locally, nothing is uploaded to 0xbow or stored in any capacity. Your Note does not expose your deposit address in any way.',
           open: true
         },
         {
-          q: 'How does Privacy Pools ensure privacy while maintaining compliance?',
-          a: 'It uses association sets and membership proofs to keep privacy while enforcing policy.',
+          q: 'Who should use the Tornado Cash Proof of Association?',
+          a:
+            'Any address that has been funded by Tornado Cash can use the tool, it allows you to dissociate publicly from any illicit activity.',
           open: false
         },
         {
-          q: 'What role does the Association Set Provider (ASP) play?',
-          a: 'The ASP curates and publishes association sets that users can target when generating proofs.',
+          q: 'Who is excluded from the Registry?',
+          a: `Our methodology for curating the association set is straightforward, deposits associated with the following are excluded:<ul><li>• Criminal or sanctioned organisations</li><li>• Hacks, theft, or scams</li><li>• Re-deposits from Tornado Cash</li><li>• Deposits made during or after the period of Tornado Cash being sanctioned</li></ul>`,
           open: false
         },
         {
-          q: 'Can a deposit be blocked from relayed withdrawals after being accepted?',
-          a: 'Relayers enforce policy at withdraw time; deposits that fail policy cannot be relayed.',
-          open: false
-        },
-        {
-          q: "What happens if a user's deposit is not approved by the ASP?",
-          a: 'The proof will fail validation; the user can review requirements and try again later.',
-          open: false
-        },
-        {
-          q: 'What happens if someone tries to re-enter the Privacy set?',
-          a: 'Nullifier checks prevent double-spending and re-entry exploits.',
-          open: false
-        },
-        {
-          q: 'What do I do with my "History File"?',
-          a: 'Keep it safe; it contains the local context needed to reconstruct proofs or audits.',
+          q: 'What if generating the proof didn’t work?',
+          a:
+            'As we cannot see the computation, it is hard to pinpoint exactly why it failed. However, most likely it is because; 1) your note or withdrawal address are incorrect, or 2) your withdrawal address is not associated with your note or vice versa.',
           open: false
         }
       ]

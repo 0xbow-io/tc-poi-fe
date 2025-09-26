@@ -235,12 +235,8 @@ export default {
     rpcUrl: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`
   },
 
-  // todo make custom loading page
-  loadingIndicator: {
-    name: 'circle',
-    color: '#94febf',
-    background: '#000'
-  },
+  // custom loading page
+  loadingIndicator: '~/static/loading.html',
 
   vue: {
     config: {
