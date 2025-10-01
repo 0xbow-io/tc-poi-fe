@@ -14,7 +14,7 @@ const TREES_PATH = './static/trees/'
 const EVENTS_PATH = './static/events/'
 
 const EVENTS = ['deposit']
-const enabledChains = ['1', '56', '100', '137']
+const enabledChains = ['1']
 let mimcHash
 
 const trees = {
@@ -138,7 +138,7 @@ async function initMimc() {
 async function main() {
   const [, , , chain] = process.argv
   if (!enabledChains.includes(chain)) {
-    throw new Error(`Supported chain ids ${enabledChains.join(', ')}`)
+    throw new Error(`Supported chain ids ${enabledChains.join(', ')}, got ${chain}`)
   }
   await initMimc()
 

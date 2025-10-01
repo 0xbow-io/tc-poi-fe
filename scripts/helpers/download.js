@@ -8,9 +8,9 @@ export async function download({ name, directory, contentType }) {
   const path = `${directory}${name}.gz`.toLowerCase()
 
   const data = fs.readFileSync(path)
-  const content = zlib.inflateSync(data)
+  const content = zlib.unzipSync(data)
 
-  return content
+  return contentType === 'string' ? content.toString('utf-8') : content
 }
 
 export async function loadCachedEvents({ name, directory, deployedBlock }) {
@@ -18,7 +18,10 @@ export async function loadCachedEvents({ name, directory, deployedBlock }) {
     const module = await download({ contentType: 'string', directory, name })
 
     if (module) {
+      console.log('module:', module)
       const events = JSON.parse(module)
+
+      console.log('length', events.length)
 
       return {
         events,
