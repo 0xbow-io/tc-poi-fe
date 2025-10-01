@@ -126,23 +126,7 @@ export default {
       })
     },
     newNotify() {
-      const hasNotify = window.localStorage.getItem('hasNotify')
-
-      if (!hasNotify) {
-        this.$store.dispatch(
-          'notice/addNotice',
-          {
-            notice: {
-              untranslatedTitle: 'New version',
-              type: 'info',
-              nova: true
-            },
-            interval: 10000
-          },
-          { root: true }
-        )
-        window.localStorage.setItem('hasNotify', true)
-      }
+      // Notification removed
     },
     handleOpenModal() {
       const recoveryKey = this.$sessionStorage.getItem(this.accounts.encrypt)

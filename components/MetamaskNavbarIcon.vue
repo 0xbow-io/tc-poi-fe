@@ -1,5 +1,5 @@
 <template>
-  <b-tooltip position="is-bottom" type="is-dark-tooltip" :triggers="[]">
+  <b-tooltip position="is-bottom" type="is-light" class="custom-wallet-tooltip" :triggers="[]">
     <template v-slot:content>
       <template v-if="isLoggedIn">
         <p>{{ $t('web3connected') }}</p>
@@ -7,6 +7,8 @@
           shortAddress(ethAccount)
         }}</a>
         <p><NumberFormat :value="balance" /> {{ currency }}</p>
+        <hr class="separator" />
+        <a @click="disconnectWallet" class="disconnect-link">{{ $t('disconnect') }}</a>
       </template>
       <template v-else>
         <p>{{ $t('notConnected') }}</p>
@@ -60,7 +62,39 @@ export default {
   methods: {
     shortAddress(address) {
       return sliceAddress(address)
+    },
+    disconnectWallet() {
+      this.$store.dispatch('metamask/logout')
     }
   }
 }
 </script>
+
+<style scoped>
+.custom-wallet-tooltip /deep/ .tooltip-content {
+  background-color: white !important;
+  border: 1px solid black !important;
+  border-radius: 0 !important;
+  color: black !important;
+}
+
+.custom-wallet-tooltip /deep/ .tooltip-arrow {
+  border-bottom-color: black !important;
+}
+
+.disconnect-link {
+  color: #ff3860 !important;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.disconnect-link:hover {
+  color: #ff1443 !important;
+}
+
+.separator {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 8px 0;
+}
+</style>

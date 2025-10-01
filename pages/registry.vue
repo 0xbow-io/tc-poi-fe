@@ -80,11 +80,6 @@
 import { ethers } from 'ethers'
 
 export default {
-  head() {
-    return {
-      title: '0xbow - Registry'
-    }
-  },
   data() {
     return {
       loading: true,
@@ -255,6 +250,11 @@ export default {
         }))
       ]
     }
+  },
+  head() {
+    return {
+      title: '0xbow - Registry'
+    }
   }
 }
 </script>
@@ -376,12 +376,19 @@ export default {
 }
 
 .status-approved {
-  background: #e8f5e9;
-  color: #4caf50;
-  padding: 0.25rem 0.75rem;
+  padding: 4px 12px;
+  gap: 10px;
+  width: 72px;
+  height: 24px;
+  background: #dfecc6;
+  border: 1px solid #7d9c40;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 500;
+  color: #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pagination-container {

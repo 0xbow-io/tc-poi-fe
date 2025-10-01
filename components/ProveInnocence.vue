@@ -68,17 +68,21 @@
         </div>
 
         <div class="poa-right">
-          <div class="poa-right-title">What is POA?</div>
+          <div class="poa-right-title">Tornado Cash Proof of Association</div>
           <p>
-            Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum
-            lorem ipsum lorem ipsum lorem ipsum lorem ipsum.
+            The Proof of Association (PoA) allows Tornado Cash users to separate their activity from illicit
+            actors who have also used the protocol.
           </p>
           <p>
-            Lorem ipsum ipsum lorem ipsum ipsum lorem ipsum ipsum lorem ipsum ipsum lorem ipsum ipsum lorem
-            ipsum.
+            By pasting your note and withdrawal address, the system will generate a proof that checks your
+            withdrawal against a curated list of Tornado Cash deposits. This list excludes illicit actors that
+            have tainted the Tornado Cash protocol.
           </p>
           <p>
-            Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum.
+            If your withdrawal is not associated with any of these activities, your address will be accepted
+            and added to the onchain Registry. This registry makes it clear, publicly and transparently, that
+            your address is not linked to illicit activity; restoring any potential doubts about the origin of
+            your funds.
           </p>
         </div>
       </div>
