@@ -10,15 +10,13 @@
           })
         }}
       </p>
-      <b-button type="is-primary" icon-left="logo" outlined @click="handleSwitchNetwork">{{
+      <b-button class="custom-error-button" @click="handleSwitchNetwork">{{
         $t('errorPage.switchNetwork.button')
       }}</b-button>
     </template>
     <template v-else>
       <p class="p mb-6">{{ $t('errorPage.description') }}</p>
-      <b-button type="is-primary" icon-left="logo" outlined @click="handleRedirect">{{
-        $t('errorPage.button')
-      }}</b-button>
+      <b-button class="custom-error-button" @click="handleRedirect">{{ $t('errorPage.button') }}</b-button>
     </template>
   </div>
 </template>
@@ -84,5 +82,23 @@ export default {
 .p {
   max-width: 560px;
   margin: 0 auto;
+}
+
+.title.is-1 {
+  color: #000 !important;
+}
+
+.custom-error-button.button {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid black !important;
+  border-radius: 0 !important;
+  padding: 12px 24px !important;
+  font-weight: 500 !important;
+}
+
+.custom-error-button.button:hover {
+  background-color: #f5f5f5 !important;
+  color: black !important;
 }
 </style>
