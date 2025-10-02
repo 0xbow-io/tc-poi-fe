@@ -40,7 +40,6 @@
           </div>
           <b-tabs v-model="activeTab" class="custom-tabs" :animated="false" @input="tabChanged">
             <ProveInnocence />
-            <Withdraw :active-tab="activeTab" style="display: none;" @get-key="onGetKey" />
           </b-tabs>
         </div>
       </div>
@@ -62,14 +61,12 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 import Txs from '@/components/Txs'
-import Withdraw from '@/components/withdraw/Withdraw'
 import ProveInnocence from '@/components/ProveInnocence'
 
 export default {
   name: 'HomePage',
   components: {
     Txs,
-    Withdraw,
     ProveInnocence
   },
   data() {

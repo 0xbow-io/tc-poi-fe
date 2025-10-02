@@ -63,7 +63,7 @@ const state = () => {
     selectedInstance: { currency: 'eth', amount: 0.1 },
     selectedStatistic: { currency: 'eth', amount: 0.1 },
     poiFeeBPS: BigInt(1337),
-    withdrawType: 'relayer',
+    withdrawType: 'wallet',
     ethToReceive: '20000000000000000',
     defaultEthToReceive: '20000000000000000',
     withdrawNote: ''
