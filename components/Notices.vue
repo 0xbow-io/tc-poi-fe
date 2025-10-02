@@ -63,3 +63,15 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Make View on Etherscan link white */
+.notification a {
+  color: white !important;
+  text-decoration: underline;
+}
+
+.notification a:hover {
+  color: #f0f0f0 !important;
+}
+</style>

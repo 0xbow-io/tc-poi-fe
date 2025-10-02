@@ -1,6 +1,6 @@
-# Proof of Innocence UI
+# Proof of Association UI
 
-Web interface for the Proof of Innocence (PoI) system built on Tornado Cash.
+Web interface for the Proof of Association (PoA) system built on Tornado Cash.
 
 ## Setup
 
@@ -65,7 +65,7 @@ yarn generate
 2. Set `RPC_URL` to your Tenderly fork or mainnet RPC
 3. Start the dev server with `yarn dev`
 4. Connect MetaMask to the same network
-5. Navigate to the Proof of Innocence page
+5. Navigate to the Proof of Association page
 
 ## Features
 
