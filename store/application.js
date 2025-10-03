@@ -1160,11 +1160,11 @@ const actions = {
           value: toFixedHex(innocenceFee)
         },
         watcherParams: {
-          title: { path: 'proving innocence', amount: note.amount, currency: note.currency },
+          title: { path: 'provingAssociation', amount: note.amount, currency: note.currency },
           successTitle: {
             amount: note.amount,
             currency: note.currency,
-            path: 'provedInnocence'
+            path: 'provedAssociation'
           }
         },
         isAwait: false,

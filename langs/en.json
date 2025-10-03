@@ -1,4 +1,6 @@
 {
+  "provingAssociation": "Proving association",
+  "provedAssociation": "Assocaition proved",
   "closeNotification": "Close notification",
   "indexNotification": "Tornado Cash is now being maintained by the community, for more information visit {link}",
   "indexNotificationLinkText": "tornadocash.community",

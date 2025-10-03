@@ -23,9 +23,9 @@ function main(store) {
       window.multipleTabsDetected = true
       window.onbeforeunload = null
       window.alert(
-        'Multiple tabs opened. Your page will be closed. Please only use single instance of https://tornado.cash'
+        'Multiple tabs opened. Your page will be closed. Please only use single instance of https://poa.0xbow.io'
       )
-      window.location = 'https://twitter.com/tornadocash'
+      window.location = 'https://twitter.com/PrivacyPools'
     }
   }
 

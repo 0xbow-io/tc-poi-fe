@@ -9,7 +9,7 @@ git diff HEAD..a8c238c2afd3cf01f00ca72bb9f1d7e9806d62b5
 
 ## Milestones
 ### v0 (18-04-2025)
-- Modify UI to integrate with Proof of Innocence flow [IN PROGRESS]
+- Modify UI to integrate with Proof of Association flow [IN PROGRESS]
 - Remove all screens except Withdraw [DONE]
 - Preserve existing styles [DONE]
 - integrate POI generation and verification through frontend [PENDING]

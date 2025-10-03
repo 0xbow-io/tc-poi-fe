@@ -165,7 +165,7 @@ export default {
   },
   head() {
     return {
-      title: '0xbow - Proof of Innocence',
+      title: '0xbow - Proof of Association',
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/fav.svg?v=3' }]
     }
   }

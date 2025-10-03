@@ -44,7 +44,7 @@ export default {
     fallback: true
   },
   head: {
-    title: '0xbow - Proof of Innocence',
+    title: '0xbow - Proof of Association',
     meta: [
       { charset: 'utf-8' },
       {
@@ -69,7 +69,7 @@ export default {
       {
         hid: 'og:title',
         property: 'og:title',
-        content: '0xbow - Proof of Innocence'
+        content: '0xbow - Proof of Association'
       },
       {
         hid: 'og:description',

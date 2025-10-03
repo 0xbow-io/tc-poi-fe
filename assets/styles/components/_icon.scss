@@ -141,31 +141,44 @@
       height: 2.286rem;
       width: 2.286rem;
     }
-    background: conic-gradient(from 180deg at 50% 50%, $primary 0deg, rgba(255, 255, 255, 0) 360deg);
-    animation: spin 2s linear infinite;
     position: relative;
-    border-radius: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      animation: pulsOut 1.8s ease-in-out infinite;
+      filter: drop-shadow(0 0 1rem rgba(255, 255, 255, 0.75));
+    }
+
+    &:before {
+      width: 100%;
+      height: 100%;
+      box-shadow: inset 0 0 0 0.5rem #fff;
+      animation-name: pulsIn;
+    }
 
     &:after {
-      content: '';
-      position: absolute;
-      height: 22px;
-      width: 22px;
-      background: $notification-background-color;
-      left: calc(50% - 11px);
-      top: calc(50% - 11px);
-      border-radius: 100%;
+      width: calc(100% - 1rem);
+      height: calc(100% - 1rem);
+      box-shadow: 0 0 0 0 #fff;
     }
 
     .is-small & {
       height: 1rem;
       width: 1rem;
 
+      &:before {
+        box-shadow: inset 0 0 0 0.25rem #fff;
+      }
+
       &:after {
-        height: 8px;
-        width: 8px;
-        left: calc(50% - 4px);
-        top: calc(50% - 4px);
+        width: calc(100% - 0.5rem);
+        height: calc(100% - 0.5rem);
       }
     }
   }
@@ -185,10 +198,20 @@
       height: 2.286rem;
       width: 2.286rem;
     }
-    background-image: url('../img/icons/notice/success.svg');
-    background-position: center;
-    background-repeat: no-repeat;
+    background: white;
     border-radius: 100%;
+    position: relative;
+
+    &:after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: black;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
   }
   &-warning {
     &.trnd-48px {
@@ -398,11 +421,24 @@
   }
 }
 
-@keyframes spin {
+@keyframes pulsIn {
   0% {
-    transform: rotate(0deg);
+    box-shadow: inset 0 0 0 0.5rem #fff;
+    opacity: 1;
   }
-  to {
-    transform: rotate(-1turn);
+  50%, 100% {
+    box-shadow: inset 0 0 0 0 #fff;
+    opacity: 0;
+  }
+}
+
+@keyframes pulsOut {
+  0%, 50% {
+    box-shadow: 0 0 0 0 #fff;
+    opacity: 0;
+  }
+  100% {
+    box-shadow: 0 0 0 0.5rem #fff;
+    opacity: 1;
   }
 }
