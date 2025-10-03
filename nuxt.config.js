@@ -79,7 +79,7 @@ export default {
       {
         hid: 'og:url',
         property: 'og:url',
-        content: 'https://tornado.cash'
+        content: 'https://tornado.0xbow.io'
       },
       {
         hid: 'og:type',
@@ -89,7 +89,7 @@ export default {
       {
         hid: 'og:image',
         property: 'og:image',
-        content: 'https://tornado.cash/tw.png'
+        content: ''
       },
       {
         hid: 'description',
@@ -100,7 +100,7 @@ export default {
         hid: 'keywords',
         name: 'keywords',
         content:
-          'Tornado, Ethereum, ERC20, dapp, smart contract, decentralized, metamask, zksnark, zero knowledge'
+          'Tornado, 0xbow, Ethereum, ERC20, dapp, smart contract, decentralized, metamask, zksnark, zero knowledge'
       }
     ],
     link: [
