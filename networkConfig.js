@@ -22,7 +22,7 @@ export default {
       secureRPC: {
         name: 'Tenderly Virtual Testnet',
         // url: 'https://api.securerpc.com/v1'
-        url: 'https://virtual.mainnet.rpc.tenderly.co/4c9d282c-0b2d-41d6-9042-ea5c18cfbbe2'
+        url: 'https://eth-mainnet.g.alchemy.com/v2/7R-EfT8ynT9_XI0nEkZYABXQy2jrAGgP'
       }
     },
     multicall: '0xeefba1e63905ef1d7acba5a8513c70307c1ce441',

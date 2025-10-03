@@ -727,13 +727,21 @@ const actions = {
       instanceName: treeInstanceName
     })
 
-    // NOTE: only use cached tree from innocence service
-    const [cachedTree] = await Promise.all([
-      treeService.getTree()
-      // dispatch('updateEvents', { ...params, type: eventsType.DEPOSIT })
+    const [cachedTree, eventsData] = await Promise.all([
+      treeService.getTree(),
+      dispatch('updateEvents', { ...params, type: eventsType.DEPOSIT })
     ])
 
-    const tree = cachedTree
+    const commitments = eventsData.events.map((el) => el.commitment.toString(10))
+
+    let tree = cachedTree
+    if (tree) {
+      const newLeaves = commitments.slice(tree.elements.length)
+      tree.bulkInsert(newLeaves)
+    } else {
+      checkCommitments(eventsData.events)
+      tree = treeService.createTree({ events: commitments })
+    }
 
     const root = toFixedHex(tree.root)
 
@@ -1022,16 +1030,8 @@ const actions = {
     commit('REMOVE_INNOCENCE_PROOF', { note })
     try {
       const parsedNote = parseNote(note)
-      const config = networkConfig[`netId${parsedNote.netId}`]
 
       const { tree: innocenceTree, root: innocenceRoot } = await dispatch('buildInnocenceTree', parsedNote)
-      console.log('innocence root', innocenceRoot)
-
-      const isSpent = await dispatch('checkSpentEventFromNullifier', parsedNote)
-
-      if (isSpent) {
-        throw new Error(this.app.i18n.t('noteHasBeenSpent'))
-      }
 
       const poiContract = getters.poiContract(parsedNote)
 
@@ -1073,43 +1073,51 @@ const actions = {
         .withdrawAndPostMembershipProof(...innocenceArgs, instance)
         .estimateGas({ from: ethAccount })
 
-      const txHash = await dispatch('metamask/sendTransaction', {
-        method: 'eth_sendTransaction',
-        params: {
-          data,
-          to: contractInstance._address,
-          gas: numberToHex(gas + 200000)
-        },
-        watcherParams: {
-          title: { path: 'withdrawing', amount: note.amount, currency: note.currency },
-          successTitle: {
-            amount: note.amount,
-            currency: note.currency,
-            path: 'withdrawnValue'
+      const txHash = await dispatch(
+        'metamask/sendTransaction',
+        {
+          method: 'eth_sendTransaction',
+          params: {
+            data,
+            to: contractInstance._address,
+            gas: numberToHex(gas + 200000)
           },
-          onSuccess: (txHash) => {
-            dispatch(
-              'txHashKeeper/updateDeposit',
-              { amount: note.amount, currency: note.currency, netId: note.netId, note, txHash },
-              { root: true }
-            )
-          }
+          watcherParams: {
+            title: { path: 'withdrawing', amount: note.amount, currency: note.currency },
+            successTitle: {
+              amount: note.amount,
+              currency: note.currency,
+              path: 'withdrawnValue'
+            },
+            onSuccess: (txHash) => {
+              dispatch(
+                'txHashKeeper/updateDeposit',
+                { amount: note.amount, currency: note.currency, netId: note.netId, note, txHash },
+                { root: true }
+              )
+            }
+          },
+          isAwait: false,
+          isSaving: true
         },
-        isAwait: false,
-        isSaving: true
-      }, { root: true })
+        { root: true }
+      )
 
-      commit('txHashKeeper/SAVE_TX_HASH', {
-        storeType: 'txs',
-        txHash,
-        note,
-        amount: parsedNote.amount,
-        currency: parsedNote.currency,
-        netId: parsedNote.netId,
-        timestamp: Math.floor(Date.now() / 1000),
-        prefix: `tornado-${parsedNote.currency}-${parsedNote.amount}-${parsedNote.netId}`,
-        status: 1 // waitingForReceipt
-      }, { root: true })
+      commit(
+        'txHashKeeper/SAVE_TX_HASH',
+        {
+          storeType: 'txs',
+          txHash,
+          note,
+          amount: parsedNote.amount,
+          currency: parsedNote.currency,
+          netId: parsedNote.netId,
+          timestamp: Math.floor(Date.now() / 1000),
+          prefix: `tornado-${parsedNote.currency}-${parsedNote.amount}-${parsedNote.netId}`,
+          status: 1 // waitingForReceipt
+        },
+        { root: true }
+      )
 
       return txHash
     } catch (e) {
@@ -1133,11 +1141,7 @@ const actions = {
       console.log('application::proveInnocence amount from note', parsedNote.amount)
       const noteAmountInWei = BigInt(rootGetters['token/fromDecimals'](parsedNote.amount))
       const feeBPS = BigInt(await contractInstance.methods.feeBPS().call())
-      const innocenceFee = noteAmountInWei * BigInt(feeBPS) / BigInt(10_000)
-      console.log('application::proveInnocence amount:', noteAmountInWei)
-      console.log('application::proveInnocence feeBPS:', feeBPS)
-      console.log('application::proveInnocence amount * feeBPS:', noteAmountInWei * feeBPS)
-      console.log('application::proveInnocence fee to pay:', innocenceFee)
+      const innocenceFee = (noteAmountInWei * BigInt(feeBPS)) / BigInt(10_000)
 
       const data = contractInstance.methods
         .submitMembershipProof(instance, innocenceProof, toFixedHex(parsedNote.nullifierHash))
@@ -1145,7 +1149,7 @@ const actions = {
 
       const gas = await contractInstance.methods
         .submitMembershipProof(instance, innocenceProof, toFixedHex(parsedNote.nullifierHash))
-        .estimateGas({ from: ethAccount })
+        .estimateGas({ from: ethAccount, value: toFixedHex(innocenceFee) })
 
       const callParams = {
         method: 'eth_sendTransaction',

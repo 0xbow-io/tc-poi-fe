@@ -88,7 +88,7 @@ export default {
       currentPage: 1,
       perPage: 50,
       searchNullifier: '',
-      useMockData: true
+      useMockData: false
     }
   },
   computed: {
@@ -215,8 +215,8 @@ export default {
       // )
 
       const ABI = [
-        'event MembershipProofSubmitted(address indexed sender, address indexed pool, bytes32 indexed nullifierHash, uint256 fee)',
-        'event WithdrawnAndProved(address indexed sender, address indexed pool, bytes32 indexed nullifierHash, uint256 membershipRoot)'
+        'event MembershipProofSubmitted(address indexed _caller, ITornado indexed _pool, bytes32 indexed _nullifierHash, uint256 _feePaid)',
+        'event WithdrawnAndProved(address indexed _caller, ITornado indexed _pool, bytes32 _nullifierHash, uint256 indexed _membershipRoot)'
       ]
 
       const contract = new ethers.Contract(PROOF_REGISTRY_ADDRESS, ABI, provider)

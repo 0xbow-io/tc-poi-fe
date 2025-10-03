@@ -194,11 +194,11 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { getTornadoKeys } from '@/store/snark'
 
-import { parseNote } from '@/utils'
 import { DONATIONS_ADDRESS } from '@/constants'
 
 import SettingsModalBox from '@/components/settings/SettingsModalBox'
 import { ConnectButton } from '@/components/web3Connect'
+import ProveInnocenceModalBox from '@/components/ProveInnocenceModalBox.vue'
 
 const { isHexStrict, isAddress } = require('web3-utils')
 
@@ -286,7 +286,16 @@ export default {
       return this.depositsPast < 5 || this.notEnoughPassedTime
     },
     isProvingDisabled() {
-      return this.isLoading || !!this.error.type || this.hasErrorNote || this.withdrawType === 'relayer'
+      const conditions = {
+        isLoading: this.isLoading,
+        hasErrorType: !!this.error.type,
+        hasErrorNote: !!this.hasErrorNote,
+        isRelayerWithdraw: this.withdrawType === 'relayer'
+      }
+
+      const result = this.isLoading || !!this.error.type || this.hasErrorNote
+
+      return result
     },
     isProvingButtonDisable() {
       return (
@@ -468,13 +477,8 @@ export default {
           return
         }
 
-        const { commitmentHex, nullifierHex } = parseNote(note)
-
         console.log('\n\nYOUR NOTE DATA:')
         console.log('note:', note)
-
-        console.log('commitment:', commitmentHex)
-        console.log('nullifierHash:', nullifierHex)
       } catch (err) {
         console.log(`Get logs: ${err.message}`)
       }
@@ -498,12 +502,18 @@ export default {
           note: this.withdrawNote
         })
 
-        // Populate modal details from current context
-        const fromAddress = this.$store.state.metamask.ethAccount || this.withdrawAddress
-        this.proofDetails.from = fromAddress || ''
-        this.proofDetails.to = this.withdrawAddress || ''
-
-        this.showSuccessModal = true
+        // Open modal to confirm and submit proof to chain
+        this.$buefy.modal.open({
+          parent: this,
+          component: ProveInnocenceModalBox,
+          hasModalCard: true,
+          width: 440,
+          props: {
+            note: this.withdrawNote,
+            withdrawType: 'wallet'
+          },
+          customClass: 'is-pinned'
+        })
       } catch (err) {
         this.error = {
           type: this.$t('error'),
