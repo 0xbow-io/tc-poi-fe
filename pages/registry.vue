@@ -8,7 +8,7 @@
             <div class="tab-links">
               <span class="tab-link" @click="$router.push('/')">POA</span>
               <span class="tab-link active">Registry</span>
-              <span class="tab-link" @click="$router.push('/deposit-list')">Deposit List</span>
+              <!--              <span class="tab-link" @click="$router.push('/deposit-list')">Deposit List</span>-->
               <div class="search-container">
                 <b-input v-model="searchNullifier" placeholder="Search" class="search-input" expanded>
                   <template #prefix>
@@ -78,6 +78,7 @@
 
 <script>
 import { ethers } from 'ethers'
+import ProveRegistryABI from '@/abis/ProofRegistry.abi.json'
 
 export default {
   data() {
@@ -210,16 +211,8 @@ export default {
     async fetchProofsFromBlockchain() {
       const PROOF_REGISTRY_ADDRESS = process.env.PROOF_REGISTRY_ADDRESS
       const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
-      // const provider = new ethers.providers.JsonRpcProvider(
-      //   'https://virtual.mainnet.rpc.tenderly.co/4584cfa3-1295-4846-a580-617ea6dfea7a'
-      // )
 
-      const ABI = [
-        'event MembershipProofSubmitted(address indexed _caller, ITornado indexed _pool, bytes32 indexed _nullifierHash, uint256 _feePaid)',
-        'event WithdrawnAndProved(address indexed _caller, ITornado indexed _pool, bytes32 _nullifierHash, uint256 indexed _membershipRoot)'
-      ]
-
-      const contract = new ethers.Contract(PROOF_REGISTRY_ADDRESS, ABI, provider)
+      const contract = new ethers.Contract(PROOF_REGISTRY_ADDRESS, ProveRegistryABI, provider)
 
       const membershipLogs = await contract.queryFilter(
         contract.filters.MembershipProofSubmitted(),
@@ -232,19 +225,19 @@ export default {
       return [
         ...membershipLogs.map((log) => ({
           type: 'Membership',
-          sender: log.args.sender,
-          pool: log.args.pool,
-          nullifierHash: log.args.nullifierHash,
-          value: ethers.utils.formatEther(log.args.fee),
+          sender: log.args._caller,
+          pool: log.args._pool,
+          nullifierHash: log.args._nullifierHash,
+          value: ethers.utils.formatEther(BigInt(log.args._feePaid)),
           txHash: log.transactionHash,
           treeLink: `https://0xbow.io/poi/tree/${log.args.membershipRoot?.toString() || 'unknown'}`
         })),
         ...withdrawnLogs.map((log) => ({
           type: 'Withdrawn',
-          sender: log.args.sender,
-          pool: log.args.pool,
-          nullifierHash: log.args.nullifierHash,
-          value: log.args.membershipRoot.toString(),
+          sender: log.args._caller,
+          pool: log.args._pool,
+          nullifierHash: log.args._nullifierHash,
+          value: log.args._membershipRoot.toString(),
           txHash: log.transactionHash,
           treeLink: `https://0xbow.io/poi/tree/${log.args.membershipRoot.toString()}`
         }))

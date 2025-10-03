@@ -198,7 +198,8 @@ export default {
           OLD_STORE_NAME: process.env.OLD_STORE_NAME,
           STORE_NAME: process.env.STORE_NAME,
           APP_ENS_NAME: process.env.APP_ENS_NAME,
-          PROOF_REGISTRY_ADDRESS: process.env.PROOF_REGISTRY_ADDRESS
+          PROOF_REGISTRY_ADDRESS: process.env.PROOF_REGISTRY_ADDRESS,
+          RPC_URL: process.env.RPC_URL
         })
       })
     ],

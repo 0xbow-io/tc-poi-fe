@@ -35,7 +35,6 @@
             <div class="tab-links">
               <span :class="['tab-link', { active: activeTab === 0 }]" @click="activeTab = 0">POA</span>
               <span class="tab-link" @click="goToRegistry">Registry</span>
-              <span class="tab-link" @click="goToDepositList">Deposit List</span>
             </div>
           </div>
           <b-tabs v-model="activeTab" class="custom-tabs" :animated="false" @input="tabChanged">

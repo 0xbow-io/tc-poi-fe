@@ -88,7 +88,7 @@ export default {
       currentPage: 1,
       perPage: 50,
       searchNullifier: '',
-      useMockData: true
+      useMockData: false
     }
   },
   computed: {
