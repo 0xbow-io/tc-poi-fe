@@ -152,40 +152,35 @@
         </div>
       </div>
     </div>
-    <div v-if="!hasErrorNote && depositTxHash" class="field field-withdraw">
-      <div class="withdraw-data">
-        <div class="withdraw-data-item">
-          {{ $t('amount') }}
-          <span data-test="note_tokens_amount">{{ selectedAmount }} {{ selectedStatisticCurrency }}</span>
-        </div>
-        <div class="withdraw-data-item">
-          {{ $t('timePassed') }}
-          <b-tooltip
-            :active="notEnoughPassedTime"
-            :label="$t('timePassedTooltip')"
-            position="is-left"
-            multilined
-            size="is-large"
-            :class="{ 'has-low-anonymity': notEnoughPassedTime }"
-          >
-            <span>{{ timePassed }}</span>
-          </b-tooltip>
-        </div>
-        <div class="withdraw-data-item">
-          {{ $t('subsequentDeposits') }}
-          <b-tooltip
-            :active="notEnoughDeposits"
-            :label="$t('subsequentDepositsTooltip')"
-            position="is-left"
-            multilined
-            size="is-large"
-            :class="{ 'has-low-anonymity': notEnoughDeposits }"
-          >
-            <span>{{ this.$tc('userDeposit', depositsPast) }}</span>
-          </b-tooltip>
-        </div>
+    <!-- Note Details Modal -->
+    <b-modal v-model="showNoteDetailsModal" :can-cancel="['escape', 'x', 'outside']">
+      <div class="modal-card note-details-modal">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Note Details</p>
+        </header>
+        <section class="modal-card-body">
+          <div class="note-detail-item">
+            <div class="detail-label">{{ $t('amount') }}:</div>
+            <div class="detail-value">{{ selectedAmount }} {{ selectedStatisticCurrency }}</div>
+          </div>
+          <div class="note-detail-item">
+            <div class="detail-label">{{ $t('timePassed') }}:</div>
+            <div class="detail-value" :class="{ 'warning-text': notEnoughPassedTime }">
+              {{ timePassed }}
+            </div>
+          </div>
+          <div class="note-detail-item">
+            <div class="detail-label">{{ $t('subsequentDeposits') }}:</div>
+            <div class="detail-value" :class="{ 'warning-text': notEnoughDeposits }">
+              {{ this.$tc('userDeposit', depositsPast) }}
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <b-button @click="showNoteDetailsModal = false">Close</b-button>
+        </footer>
       </div>
-    </div>
+    </b-modal>
   </b-tab-item>
 </template>
 
@@ -224,6 +219,7 @@ export default {
       timePassed: '',
       showSuccessModal: false,
       showFailureModal: false,
+      showNoteDetailsModal: false,
       proofDetails: {
         from: '',
         to: '',
@@ -385,6 +381,10 @@ export default {
             this.depositTxHash = txHash
             this.depositTimestamp = timestamp
             this.isSpent = isSpent
+            // Show the note details modal after fetching the data
+            if (this.depositTxHash) {
+              this.showNoteDetailsModal = true
+            }
           }
         } catch (err) {
           this.error = {
@@ -842,5 +842,80 @@ export default {
       }
     }
   }
+}
+/* Note Details Modal Styles */
+.note-details-modal {
+  background: white !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.note-details-modal .modal-card-head {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1.5rem;
+}
+
+.note-details-modal .modal-card-title {
+  color: #000;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.note-details-modal .modal-card-body {
+  padding: 1rem;
+  background: white;
+  overflow-x: hidden;
+}
+
+.note-detail-item {
+  margin-bottom: 1.5em;
+}
+
+.note-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 0.5em;
+}
+
+.detail-value {
+  color: #000;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.detail-value.warning-text {
+  color: #ff6b00;
+}
+
+.note-details-modal .modal-card-foot {
+  background: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.note-details-modal .button {
+  background: white;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 4px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+}
+
+.note-details-modal .button:hover {
+  background: #f5f5f5;
+}
+
+/* Override Buefy modal width */
+::v-deep .modal-card {
+  width: auto !important;
+  max-width: 800px !important;
 }
 </style>
