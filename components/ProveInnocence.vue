@@ -191,7 +191,7 @@
 
 <script>
 /* eslint-disable no-console */
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import { getTornadoKeys } from '@/store/snark'
 
 import { DONATIONS_ADDRESS } from '@/constants'
@@ -286,16 +286,7 @@ export default {
       return this.depositsPast < 5 || this.notEnoughPassedTime
     },
     isProvingDisabled() {
-      const conditions = {
-        isLoading: this.isLoading,
-        hasErrorType: !!this.error.type,
-        hasErrorNote: !!this.hasErrorNote,
-        isRelayerWithdraw: this.withdrawType === 'relayer'
-      }
-
-      const result = this.isLoading || !!this.error.type || this.hasErrorNote
-
-      return result
+      return this.isLoading || !!this.error.type || this.hasErrorNote
     },
     isProvingButtonDisable() {
       return (
