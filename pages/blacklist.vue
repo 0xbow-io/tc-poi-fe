@@ -4,11 +4,11 @@
       <div class="column">
         <div class="tabs-wrapper">
           <div class="tabs-header">
-            <span class="tab-title">Deposit List</span>
+            <span class="tab-title">Blacklist</span>
             <div class="tab-links">
               <span class="tab-link" @click="$router.push('/')">POA</span>
               <span class="tab-link" @click="$router.push('/registry')">Registry</span>
-              <span class="tab-link active">Deposit List</span>
+              <span class="tab-link active">Blacklist</span>
               <div class="search-container">
                 <b-input v-model="searchNullifier" placeholder="Search" class="search-input" expanded>
                   <template #prefix>
@@ -24,21 +24,16 @@
                 <thead>
                   <tr>
                     <th>ADDRESS</th>
-                    <th>DATE-TIME</th>
-                    <th>STATUS</th>
                     <th>REASON</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="proof in paginatedProofs" :key="proof.nullifierHash">
-                    <td class="address-cell">{{ truncateAddress(proof.sender) }}</td>
-                    <td class="datetime-cell">{{ formatDateTime(proof.timestamp) }}</td>
-                    <td class="status-cell">
-                      <span class="status-approved">Approved</span>
+                  <tr v-for="entry in paginatedEntries" :key="entry.address">
+                    <td class="address-cell">
+                      <span class="address-full">{{ entry.address }}</span>
+                      <span class="address-truncated">{{ truncateAddress(entry.address) }}</span>
                     </td>
-                    <td class="reason-cell">
-                      Lorem ipsum lorem upsfkim sdfsdf...
-                    </td>
+                    <td class="exposure-cell">{{ entry.exposure }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -83,21 +78,20 @@ export default {
   data() {
     return {
       loading: true,
-      proofs: [],
-      filteredProofs: [],
+      entries: [],
+      filteredEntries: [],
       currentPage: 1,
       perPage: 50,
-      searchNullifier: '',
-      useMockData: false
+      searchNullifier: ''
     }
   },
   computed: {
-    paginatedProofs() {
+    paginatedEntries() {
       const start = (this.currentPage - 1) * this.perPage
-      return this.filteredProofs.slice(start, start + this.perPage)
+      return this.filteredEntries.slice(start, start + this.perPage)
     },
     pageCount() {
-      return Math.ceil(this.filteredProofs.length / this.perPage) || 1
+      return Math.ceil(this.filteredEntries.length / this.perPage) || 1
     },
     displayedPages() {
       const pages = []
@@ -119,33 +113,48 @@ export default {
   },
   watch: {
     searchNullifier() {
-      this.filterProofs()
+      this.filterEntries()
     }
   },
-  mounted() {
+  async mounted() {
     try {
-      this.proofs = this.generateMockProofs()
-      this.filteredProofs = this.proofs
+      await this.loadCsvData()
     } catch (e) {
-      // leave silently for now; UI is mock-only
+      console.error('Error loading CSV data:', e)
     } finally {
       this.loading = false
     }
   },
   methods: {
+    async loadCsvData() {
+      try {
+        const response = await fetch('/blacklist.csv')
+        const csvText = await response.text()
+        const lines = csvText.trim().split('\n')
+
+        // Skip header row
+        const dataLines = lines.slice(1)
+
+        this.entries = dataLines
+          .map((line) => {
+            const [address, grouping] = line.split(';')
+            return {
+              address: address.trim(),
+              exposure: grouping.trim()
+            }
+          })
+          .filter((entry) => entry.address && entry.exposure)
+
+        this.filteredEntries = this.entries
+      } catch (error) {
+        console.error('Failed to load CSV data:', error)
+        this.entries = []
+        this.filteredEntries = []
+      }
+    },
     truncateAddress(addr) {
       if (!addr) return ''
       return addr.slice(0, 6) + '...' + addr.slice(-4)
-    },
-    formatDateTime(timestamp) {
-      if (!timestamp) return '11.23.24 - 23:45'
-      const date = new Date(timestamp)
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      const year = String(date.getFullYear()).slice(-2)
-      const hours = String(date.getHours()).padStart(2, '0')
-      const minutes = String(date.getMinutes()).padStart(2, '0')
-      return `${month}.${day}.${year} - ${hours}:${minutes}`
     },
     previousPage() {
       if (this.currentPage > 1) this.currentPage--
@@ -156,29 +165,17 @@ export default {
     goToPage(page) {
       this.currentPage = page
     },
-    filterProofs() {
+    filterEntries() {
       const query = this.searchNullifier.toLowerCase().trim()
-      this.filteredProofs = this.proofs.filter((p) => p.nullifierHash.toLowerCase().includes(query))
+      this.filteredEntries = this.entries.filter(
+        (entry) => entry.address.toLowerCase().includes(query) || entry.exposure.toLowerCase().includes(query)
+      )
       this.currentPage = 1
-    },
-    generateMockProofs() {
-      const randHex = () =>
-        '0x' + [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-      const proofs = []
-      for (let i = 0; i < 100; i++) {
-        const timestamp = Date.now() - i * 1000 * 60
-        proofs.push({
-          sender: randHex().slice(0, 42),
-          nullifierHash: randHex(),
-          timestamp
-        })
-      }
-      return proofs.sort((a, b) => b.timestamp - a.timestamp)
     }
   },
   head() {
     return {
-      title: '0xbow - Deposit List'
+      title: '0xbow - Blacklist'
     }
   }
 }
@@ -288,37 +285,22 @@ export default {
 }
 
 .address-cell {
-  font-family: monospace;
   color: #333;
-}
-
-.datetime-cell {
-  color: #666;
-}
-
-.status-cell {
-  text-align: right !important;
-}
-
-.reason-cell {
-  color: #666;
   font-family: monospace;
 }
 
-.status-approved {
-  padding: 4px 12px;
-  gap: 10px;
-  width: 72px;
-  height: 24px;
-  background: #dfecc6;
-  border: 1px solid #7d9c40;
-  border-radius: 12px;
-  font-size: 0.85rem;
+.address-full {
+  display: block;
+}
+
+.address-truncated {
+  display: none;
+}
+
+.exposure-cell {
+  color: #333;
   font-weight: 500;
-  color: #000;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  text-transform: uppercase;
 }
 
 .pagination-container {
@@ -382,5 +364,16 @@ export default {
 .ellipsis {
   color: #666;
   padding: 0 0.25rem;
+}
+
+/* Show truncated address on smaller screens */
+@media (max-width: 768px) {
+  .address-full {
+    display: none;
+  }
+
+  .address-truncated {
+    display: block;
+  }
 }
 </style>

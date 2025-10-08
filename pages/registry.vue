@@ -8,7 +8,7 @@
             <div class="tab-links">
               <span class="tab-link" @click="$router.push('/')">POA</span>
               <span class="tab-link active">Registry</span>
-              <!--              <span class="tab-link" @click="$router.push('/deposit-list')">Deposit List</span>-->
+              <span class="tab-link" @click="$router.push('/blacklist')">Blacklist</span>
               <div class="search-container">
                 <b-input v-model="searchNullifier" placeholder="Search" class="search-input" expanded>
                   <template #prefix>

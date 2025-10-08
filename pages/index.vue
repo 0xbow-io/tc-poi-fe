@@ -35,6 +35,7 @@
             <div class="tab-links">
               <span :class="['tab-link', { active: activeTab === 0 }]" @click="activeTab = 0">POA</span>
               <span class="tab-link" @click="goToRegistry">Registry</span>
+              <span class="tab-link" @click="goToBlacklist">Blacklist</span>
             </div>
           </div>
           <b-tabs v-model="activeTab" class="custom-tabs" :animated="false" @input="tabChanged">
@@ -157,9 +158,9 @@ export default {
     goToRegistry() {
       this.$router.push('/registry')
     },
-    goToDepositList() {
-      // Navigate to Deposit List page
-      this.$router.push('/deposit-list')
+    goToBlacklist() {
+      // Navigate to Blacklist page
+      this.$router.push('/blacklist')
     }
   },
   head() {
