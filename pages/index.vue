@@ -186,7 +186,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1rem 1rem;
   /* Avoid heavy divider above the form, design uses top bar border instead */
   border-bottom: none;
 }

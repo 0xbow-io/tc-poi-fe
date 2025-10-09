@@ -35,17 +35,6 @@
             {{ error.message }}
           </div>
 
-          <div class="poa-meta">
-            <div class="meta-row">
-              <span class="meta-label">Donations address:</span>
-              <span class="meta-value">{{ DONATIONS_ADDRESS }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-label">Tornado.cash version:</span>
-              <span class="meta-value">debug</span>
-            </div>
-          </div>
-
           <div class="poa-button-container">
             <connect-button
               v-if="!isLoggedIn"
@@ -598,9 +587,12 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .poa-container {
+    padding: 1rem;
+  }
+
   .poa-grid {
-    grid-template-columns: 1fr;
-    grid-gap: 1.5rem;
+    display: block;
   }
 }
 
@@ -612,6 +604,33 @@ export default {
 @media (max-width: 768px) {
   .poa-left {
     border: none;
+    padding: 0.5rem;
+  }
+
+  .poa-field {
+    width: 100%;
+  }
+
+  /* Target the b-input component wrapper */
+  .poa-input {
+    width: 100% !important;
+  }
+
+  /* Target the actual input control wrapper inside b-input */
+  .poa-input ::v-deep .control {
+    width: 100% !important;
+  }
+
+  /* Target the input element inside b-input */
+  .poa-input ::v-deep .control input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .poa-right {
+    padding-left: 0.5rem;
   }
 }
 
@@ -708,21 +727,6 @@ export default {
     color: #000 !important;
     border-color: #000 !important;
   }
-}
-
-.poa-meta {
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
-  color: #333;
-}
-
-.poa-meta .meta-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.poa-meta .meta-label {
-  color: #666;
 }
 
 .modal-overlay {
