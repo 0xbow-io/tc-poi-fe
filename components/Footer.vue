@@ -28,7 +28,7 @@
                 <b-button
                   tag="a"
                   type="is-icon"
-                  href="https://github.com/0xbow-io"
+                  href="https://github.com/0xbow-io/tc-poi-fe"
                   target="_blank"
                   rel="noopener noreferrer"
                   icon-right="github"
