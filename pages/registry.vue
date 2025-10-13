@@ -24,6 +24,8 @@
                 <thead>
                   <tr>
                     <th>ADDRESS</th>
+                    <th>NULLIFIER</th>
+                    <th>TX HASH</th>
                     <th>DATE-TIME</th>
                     <th>STATUS</th>
                   </tr>
@@ -31,6 +33,8 @@
                 <tbody>
                   <tr v-for="proof in paginatedProofs" :key="proof.nullifierHash">
                     <td class="address-cell">{{ truncateAddress(proof.sender) }}</td>
+                    <td class="hash-cell">{{ truncateHash(proof.nullifierHash) }}</td>
+                    <td class="hash-cell">{{ truncateHash(proof.txHash) }}</td>
                     <td class="datetime-cell">{{ formatDateTime(proof.timestamp) }}</td>
                     <td class="status-cell">
                       <span class="status-approved">Approved</span>
@@ -182,7 +186,55 @@ export default {
     },
     filterProofs() {
       const query = this.searchNullifier.toLowerCase().trim()
-      this.filteredProofs = this.proofs.filter((p) => p.nullifierHash.toLowerCase().includes(query))
+
+      if (!query) {
+        this.filteredProofs = this.proofs
+        this.currentPage = 1
+        return
+      }
+
+      // Try to convert query to hex if it's a decimal number
+      let hexQuery = query
+      if (/^\d+$/.test(query)) {
+        // If it's a pure decimal number, try to convert to hex
+        try {
+          const bigIntValue = BigInt(query)
+          hexQuery = '0x' + bigIntValue.toString(16)
+        } catch (e) {
+          // If conversion fails, just use the original query
+          hexQuery = query
+        }
+      }
+
+      // Filter by address, nullifier, or txHash
+      this.filteredProofs = this.proofs.filter((p) => {
+        const addressMatch = p.sender.toLowerCase().includes(query)
+        const nullifierMatch =
+          p.nullifierHash.toLowerCase().includes(query) || p.nullifierHash.toLowerCase().includes(hexQuery)
+        const txHashMatch = p.txHash.toLowerCase().includes(query)
+
+        // Also try to match if user enters decimal representation of hex values
+        let decimalMatch = false
+        if (hexQuery !== query) {
+          // User entered decimal, check if hex version matches
+          decimalMatch =
+            p.nullifierHash.toLowerCase().includes(hexQuery) || p.txHash.toLowerCase().includes(hexQuery)
+        } else if (query.startsWith('0x')) {
+          // User entered hex, try to convert stored values to check decimal equivalents
+          try {
+            const queryBigInt = BigInt(query)
+            const nullifierBigInt = BigInt(p.nullifierHash)
+            const txHashBigInt = BigInt(p.txHash)
+
+            decimalMatch = queryBigInt === nullifierBigInt || queryBigInt === txHashBigInt
+          } catch (e) {
+            // Conversion failed, skip decimal match
+          }
+        }
+
+        return addressMatch || nullifierMatch || txHashMatch || decimalMatch
+      })
+
       this.currentPage = 1
     },
     generateMockProofs() {
@@ -222,7 +274,7 @@ export default {
 
       const withdrawnLogs = await contract.queryFilter(contract.filters.WithdrawnAndProved(), 0, 'latest')
 
-      return [
+      const logs = [
         ...membershipLogs.map((log) => ({
           type: 'Membership',
           sender: log.args._caller,
@@ -230,7 +282,7 @@ export default {
           nullifierHash: log.args._nullifierHash,
           value: ethers.utils.formatEther(BigInt(log.args._feePaid)),
           txHash: log.transactionHash,
-          treeLink: `https://0xbow.io/poi/tree/${log.args.membershipRoot?.toString() || 'unknown'}`
+          blockNumber: log.blockNumber
         })),
         ...withdrawnLogs.map((log) => ({
           type: 'Withdrawn',
@@ -239,9 +291,29 @@ export default {
           nullifierHash: log.args._nullifierHash,
           value: log.args._membershipRoot.toString(),
           txHash: log.transactionHash,
-          treeLink: `https://0xbow.io/poi/tree/${log.args.membershipRoot.toString()}`
+          blockNumber: log.blockNumber
         }))
       ]
+
+      const blockTimes = await this.getBlockTimes(logs.map((log) => log.blockNumber))
+
+      return logs.map((log) => ({
+        ...log,
+        timestamp: blockTimes[log.blockNumber] * 1000
+      }))
+    },
+    async getBlockTimes(blockNumbers) {
+      const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
+      const blockTimes = {}
+
+      for (const blockNumber of blockNumbers) {
+        if (blockTimes[blockNumber] !== undefined) continue
+
+        const block = await provider.getBlock(blockNumber)
+        blockTimes[blockNumber] = block.timestamp
+      }
+
+      return blockTimes
     }
   },
   head() {
@@ -356,6 +428,11 @@ export default {
 }
 
 .address-cell {
+  font-family: monospace;
+  color: #333;
+}
+
+.hash-cell {
   font-family: monospace;
   color: #333;
 }

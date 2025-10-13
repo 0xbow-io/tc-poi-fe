@@ -18,7 +18,7 @@
             ></b-input>
           </div>
 
-          <div class="field poa-field">
+          <div v-if="isSpent" class="field poa-field">
             <b-input
               v-model="withdrawAddress"
               placeholder="Enter recipient address"
@@ -26,6 +26,13 @@
               data-test="recipient_field"
               class="poa-input"
             ></b-input>
+          </div>
+
+          <div
+            v-if="withdrawNote && !isSpent && noteInputTouched && !hasErrorNote"
+            class="notification is-info withdrawals-coming-soon"
+          >
+            <p>Your note is unspent. Withdrawals are coming soon.</p>
           </div>
 
           <div v-if="hasErrorNote" class="help error-msg">
@@ -683,6 +690,21 @@ export default {
   color: #ff4444;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.withdrawals-coming-soon {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #90caf9;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
 }
 
 .poa-button-container {

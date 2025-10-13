@@ -965,8 +965,6 @@ const actions = {
 
       const poiContract = getters.poiContract(parsedNote)
 
-      console.log('WHY', recipient, poiContract._address)
-
       const { proof: tornadoProof, args: tornadoArgs } = await dispatch('createSnarkProof', {
         root: BigInt(tornadoRoot),
         tree: tornadoTree,

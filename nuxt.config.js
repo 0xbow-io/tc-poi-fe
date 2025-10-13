@@ -107,7 +107,7 @@ export default {
       { rel: 'manifest', href: '/manifest.json' },
       { rel: 'icon', type: 'image/svg+xml', href: '/fav.svg?v=3' },
       { rel: 'shortcut icon', type: 'image/x-icon', href: '/fav.svg?v=3' },
-      { rel: 'apple-touch-icon', href: '/favicon/0xbow_fav.png' }
+      { rel: 'apple-touch-icon', href: '/fav.svg?v=3' }
     ]
   },
   /*
