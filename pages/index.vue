@@ -270,4 +270,16 @@ export default {
   color: #666;
   margin-top: 0.5rem;
 }
+
+/* Mobile responsiveness - iPhone 12 Pro and smaller */
+@media screen and (max-width: 390px) {
+  .tabs-header {
+    padding: 1rem 1rem 1rem 0.5rem;
+  }
+
+  .tab-title {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+  }
+}
 </style>
