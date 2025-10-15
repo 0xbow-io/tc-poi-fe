@@ -18,7 +18,7 @@
             ></b-input>
           </div>
 
-          <div v-if="isSpent" class="field poa-field">
+          <div v-if="!isSpent" class="field poa-field">
             <b-input
               v-model="withdrawAddress"
               placeholder="Enter recipient address"
@@ -53,7 +53,7 @@
               v-else
               type="is-primary is-fullwidth"
               class="poa-generate-btn"
-              :disabled="isProvingButtonDisable || !withdrawNote || !withdrawAddress"
+              :disabled="isProvingButtonDisable || !withdrawNote || (!withdrawAddress && !isSpent)"
               :loading="isLoading"
               data-test="button_start_innocenceproof"
               @click="onProveInnocence"

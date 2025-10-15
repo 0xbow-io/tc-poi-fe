@@ -24,7 +24,7 @@ export const eventsType = {
   WITHDRAWAL
 }
 
-export const CONTRACT_INSTANCES = ['0.1', '1', '10', '100', '1000']
+export const CONTRACT_INSTANCES = ['0.1', '1', '10', '100']
 
 export const INDEX_DB_ERROR = 'A mutation operation was attempted on a database that did not allow mutations.'
 

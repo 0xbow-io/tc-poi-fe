@@ -879,8 +879,6 @@ const actions = {
       nullifier: note.nullifier
     }
 
-    console.log('innocence circuit inputs', input)
-
     const { circuit, provingKey } = await getTornadoKeys()
 
     if (!groth16) {

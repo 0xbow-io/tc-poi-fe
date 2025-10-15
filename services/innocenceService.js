@@ -1,3 +1,7 @@
+import { trees } from '@/constants'
+import { download } from '@/store/snark'
+import { CONTRACT_INSTANCES } from '@/constants'
+
 class InnocenceService {
   constructor({ netId, amount, currency, commitment, instanceName }) {
     this.netId = netId
@@ -9,57 +13,106 @@ class InnocenceService {
     this.idb = window.$nuxt.$indexedDB(netId)
   }
 
+  getFileName(partNumber = trees.PARTS_COUNT) {
+    return `trees/deposits_${this.currency}_${this.amount}_slice${partNumber}.json.gz`
+  }
+
+  async downloadSlice(name) {
+    const slicedData = await download({
+      name,
+      eventName: 'trees',
+      contentType: 'string'
+    })
+
+    if (!slicedData) {
+      throw new Error('Cant download file')
+    }
+
+    return JSON.parse(slicedData)
+  }
+
   async getInnocentCommitments() {
     console.info('innocenceService.js:getInnocentCommitments')
-    // const commitments = await fetch(S3_URL).json()[this.currency].filter(deposit => deposit.LEGIT === true).map(dep => dep.commitment)
+
     try {
-      // NOTE(for: casio): Connect tree data here
-      const commitments = JSON.stringify([
-        '0x26ee188888888888d9f6561f9f7e30d68a68e24ed90e09478e461b2cbc9d9acb',
-        '0x16ee107c78de7edad9f6561f9f7e30d68a68e24ed888888888861b2cbc9d9acb',
-        '0x16ee107c28de7edad9f6561f9f7e30d68a68e248888888478e461b2cbc9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d688888888880e09478e461b2cbc9d9acb',
-        '0x16ee107c98de7edad9f6561f988888888888e24ed90e09478e461b2cbc9d9acb',
-        '0x16ee107c98de7edad9f65688888880d68a68e24ed90e09478e461b2cbc9d9acb',
-        '0x16ee107c98de7edad888888f9f7e30d68a68e24ed90e09478e461b2cbc9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2cbc9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2cb8888acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2c888d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b888c9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b862c9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b853c9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b21bc9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b29bc9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b22bc9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2c7c9d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2cbc1d9acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2cbc939acb',
-        '0x16ee107c98de7edad9f6561f9f7e30d68a68e24ed90e09478e461b2cbc2d9acb'
-      ])
-      // let commitments = await data.text()
-      await Promise.resolve()
-      return JSON.parse(commitments).map((com) => ({ commitment: com }))
+      // First, check if we have cached commitments in DB
+      const cachedCommitments = await this.getInnocentCommitmentsFromDB()
+
+      if (cachedCommitments && cachedCommitments.length > 0) {
+        console.log('Using cached innocent commitments', cachedCommitments.length)
+        return cachedCommitments
+      }
+
+      // If no cache, fetch from tree files for all amounts
+      console.log('Fetching innocent commitments from tree files for all amounts')
+      const allCommitments = []
+
+      // Loop through all contract instances (amounts)
+      for (const amount of CONTRACT_INSTANCES) {
+        console.log(`Fetching commitments for ${this.currency} ${amount}`)
+
+        // Download all tree slices for this amount
+        for (let i = 1; i <= trees.PARTS_COUNT; i++) {
+          try {
+            const fileName = `trees/deposits_${this.currency}_${amount}_slice${i}.json.gz`
+            const sliceData = await this.downloadSlice(fileName)
+
+            // Extract commitments from elements array
+            if (sliceData.elements && Array.isArray(sliceData.elements)) {
+              allCommitments.push(...sliceData.elements)
+            }
+          } catch (err) {
+            console.error(`Failed to download slice ${i} for ${this.currency} ${amount}:`, err)
+          }
+        }
+      }
+
+      console.log('Fetched innocent commitments count:', allCommitments.length)
+
+      // Save to cache for future use
+      if (allCommitments.length > 0) {
+        await this.saveInnocentCommitments({ commitments: allCommitments })
+      }
+
+      return allCommitments.map((commitment) => ({ commitment }))
     } catch (err) {
       console.error('failed getting innocent commitment cache', err)
+      return []
     }
   }
 
-  async saveInnocentCommitments({ commitmentTree }) {
+  async saveInnocentCommitments({ commitments }) {
     await Promise.resolve()
     try {
       this.idb.putItem({
-        storeName: `stringify_inno_${this.instanceName}_commitments`,
-        data: { commitmentTree },
-        key: 'commitment'
+        storeName: `stringify_inno_${this.currency}_commitments`,
+        data: { commitments: JSON.stringify(commitments) },
+        key: 'commitments'
       })
+      console.log('Saved innocent commitments to cache')
     } catch (err) {
       console.error('saveInnocentCommitment has error:', err.message)
     }
   }
 
   async getInnocentCommitmentsFromDB() {
-    const result = await this.idb.getAll({ storeName: `stringify_inno_${this.instanceName}_commitments` })
-    return result
+    try {
+      const result = await this.idb.getAll({
+        storeName: `stringify_inno_${this.currency}_commitments`
+      })
+
+      if (!result || result.length === 0) {
+        return null
+      }
+
+      const [{ commitments }] = result
+      const parsedCommitments = JSON.parse(commitments)
+
+      return parsedCommitments.map((commitment) => ({ commitment }))
+    } catch (err) {
+      console.error('Error getting innocent commitments from DB:', err)
+      return null
+    }
   }
 }
 

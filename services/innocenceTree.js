@@ -68,6 +68,7 @@ class MerkleTreeService {
         edge: [],
         elements: innocentCommitments.map((com) => com.commitment)
       })
+
       return partialTree
     } catch (err) {
       return undefined
